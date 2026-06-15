@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes.auth import router as auth_router
 from routes import settings
 from routes import search
+from routes import analytics
 
 from database import Base, engine
 
@@ -30,3 +31,5 @@ def home():
     return {
         "message": "Backend Gateway Running"
     }
+
+app.include_router(analytics.router)
