@@ -18,6 +18,7 @@ class RegisterSchema(BaseModel):
     username: str
     email: str
     password: str
+    role: str
 
 @router.post("/login")
 async def login(data: LoginSchema):
