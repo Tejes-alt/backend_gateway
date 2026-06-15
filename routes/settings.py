@@ -1,61 +1,64 @@
-from fastapi import (
-    APIRouter,
-    Depends
-)
-
-from sqlalchemy.orm import Session
-
-from database import SessionLocal
-
-import crud
-import schemas
+from fastapi import APIRouter
+from fastapi import Body
+import httpx
 
 router = APIRouter(
-    prefix="/settings",
-    tags=["Settings"]
+    prefix="/settings"
 )
 
+SPRING_URL = "https://backend-project-o0lt.onrender.com"
 
-def get_db():
+@router.get("")
+async def get_settings():
 
-    db = SessionLocal()
+    async with httpx.AsyncClient() as client:
 
-    try:
-        yield db
+        response = await client.get(
+            f"{SPRING_URL}/settings"
+        )
 
-    finally:
-        db.close()
+        return response.json()
 
-
-@router.get("/")
-def get_settings(
-    db: Session = Depends(get_db)
+@router.post("")
+async def create_setting(
+    data: dict = Body(...)
 ):
 
-    return crud.get_all_settings(db)
+    async with httpx.AsyncClient() as client:
 
+        response = await client.post(
+            f"{SPRING_URL}/settings",
+            json=data
+        )
 
-@router.post("/")
-def create_setting(
-    setting: schemas.SettingCreate,
-    db: Session = Depends(get_db)
+        return response.json()
+
+@router.put("/{id}")
+async def update_setting(
+    id: int,
+    data: dict = Body(...)
 ):
 
-    return crud.create_setting(
-        db,
-        setting
-    )
+    async with httpx.AsyncClient() as client:
 
+        response = await client.put(
+            f"{SPRING_URL}/settings/{id}",
+            json=data
+        )
 
-@router.put("/{setting_id}")
-def update_setting(
-    setting_id: int,
-    setting: schemas.SettingUpdate,
-    db: Session = Depends(get_db)
+        return response.json()
+
+@router.delete("/{id}")
+async def delete_setting(
+    id: int
 ):
 
-    return crud.update_setting(
-        db,
-        setting_id,
-        setting.value
-    )
+    async with httpx.AsyncClient() as client:
+
+        response = await client.delete(
+            f"{SPRING_URL}/settings/{id}"
+        )
+
+        return {
+            "message": "Deleted"
+        }
